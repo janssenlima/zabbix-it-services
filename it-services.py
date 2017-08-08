@@ -12,7 +12,7 @@ import os
 # add the IP of your Zabbix Server
 zapi = ZabbixAPI(server="http://localhost/zabbix")
 # add your access credentials
-zapi.login("Admin", "zabbix")
+zapi.login("<user>", "<password>")
 
 def get_hostgroups():
     hostgroups = zapi.hostgroup.get({"output": "extend"})
