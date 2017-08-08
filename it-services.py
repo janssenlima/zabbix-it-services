@@ -12,7 +12,7 @@ import os
 # add the IP of your Zabbix Server
 zapi = ZabbixAPI(server="http://localhost/zabbix")
 # add your access credentials
-zapi.login("<user>", "<password>")
+zapi.login("Admin", "zabbix")
 
 def get_hostgroups():
     hostgroups = zapi.hostgroup.get({"output": "extend"})
@@ -23,11 +23,11 @@ def get_hostgroups():
     return listaGrupos
 
 def get_hostgroups_id(grupo):
-    groupId = zapi.hostgroup.get({"output": "extend","filter":{"name":grupo}})[0                                                                                                                     ]['groupid']
+    groupId = zapi.hostgroup.get({"output": "extend","filter":{"name":grupo}})[0]['groupid']
     return groupId
 
 def get_hosts(grupo):
-    hosts_grupo = zapi.host.get({"groupids":get_hostgroups_id(grupo),"output":["                                                                                                                     host"]})
+    hosts_grupo = zapi.host.get({"groupids":get_hostgroups_id(grupo),"output":["host"]})
     listaHosts = []
     for x in hosts_grupo:
         print x['host']
@@ -35,16 +35,16 @@ def get_hosts(grupo):
     return listaHosts
 
 def get_hostid(host):
-    hostId = zapi.host.get({"output":"hostid","filter":{"host":host}})[0]['hosti                                                                                                                     d']
+    hostId = zapi.host.get({"output":"hostid","filter":{"host":host}})[0]['hostid']
     return hostId
 
 def get_triggers_hosts(host):
-    triggers = zapi.trigger.get({"hostids":get_hostid(host),"expandDescription":                                                                                                                     "true","expandComment":"true","expandExpression":"true"})
+    triggers = zapi.trigger.get({"hostids":get_hostid(host),"expandDescription":"true","expandComment":"true","expandExpression":"true"})
     for x in triggers:
         print x['description']
 
 def get_items_hosts(host):
-    items = zapi.item.get({"hostids":get_hostid(host),"with_triggers":True,"sele                                                                                                                     ctTriggers":"extend"})
+    items = zapi.item.get({"hostids":get_hostid(host),"with_triggers":True,"selectTriggers":"extend"})
     listaItems = []
     for x in items:
         print x['name']
@@ -52,28 +52,28 @@ def get_items_hosts(host):
     return listaItems
 
 def get_item_triggerid(host,item):
-    triggerId = zapi.item.get({"output":"triggers","hostids":get_hostid(host),"w                                                                                                                     ith_triggers":True,"selectTriggers":"triggers","filter":{"name":item}})[0]['trig                                                                                                                     gers'][0]['triggerid']
+    triggerId = zapi.item.get({"output":"triggers","hostids":get_hostid(host),"with_triggers":True,"selectTriggers":"triggers","filter":{"name":item}})[0]['triggers'][0]['triggerid']
     return triggerId
 
 def mk_father_itservices(grupo):
-    zapi.service.create({"name":grupo,"algorithm":"1","showsla":"1","goodsla":"9                                                                                                                     9.99","sortorder":"1"})
+    zapi.service.create({"name":grupo,"algorithm":"1","showsla":"1","goodsla":"99.99","sortorder":"1"})
 
 def get_itservice_pid(grupo):
-    parentId = zapi.service.get({"selectParent":"extend","selectTrigger":"extend                                                                                                                     ","expandExpression":"true","filter":{"name":grupo}})[0]['serviceid']
+    parentId = zapi.service.get({"selectParent":"extend","selectTrigger":"extend","expandExpression":"true","filter":{"name":grupo}})[0]['serviceid']
     return parentId
 
 def mk_child_itservices(host,grupo):
-    zapi.service.create({"name":host,"algorithm":"1","showsla":"1","goodsla":"99                                                                                                                     .99","sortorder":"1","parentid":get_itservice_pid(grupo)})
+    zapi.service.create({"name":host,"algorithm":"1","showsla":"1","goodsla":"99.99","sortorder":"1","parentid":get_itservice_pid(grupo)})
 
 def get_itservice_pid_child(host):
-    parentIdChild = zapi.service.get({"selectParent":"extend","selectTrigger":"e                                                                                                                     xtend","expandExpression":"true","filter":{"name":host}})[0]['serviceid']
+    parentIdChild = zapi.service.get({"selectParent":"extend","selectTrigger":"extend","expandExpression":"true","filter":{"name":host}})[0]['serviceid']
     return parentIdChild
 
 def mk_child_itservices_trigger(host,item):
-    zapi.service.create({"name":item,"algorithm":"1","showsla":"1","goodsla":"99                                                                                                                     .99","sortorder":"1","parentid":get_itservice_pid_child(host),"triggerid":get_it                                                                                                                     em_triggerid(host,item)})
+    zapi.service.create({"name":item,"algorithm":"1","showsla":"1","goodsla":"99.99","sortorder":"1","parentid":get_itservice_pid_child(host),"triggerid":get_item_triggerid(host,item)})
 
 def get_itservices():
-    itServices = zapi.service.get({"selectParent":"extend","selectTrigger":"exte                                                                                                                     nd"})
+    itServices = zapi.service.get({"selectParent":"extend","selectTrigger":"extend"})
     listaServicos = []
     for x in itServices:
         listaServicos += [x['serviceid']]
@@ -176,7 +176,7 @@ while resposta:
       print "Recriando ambiente IT Services. Aguarde ..."
       mk_populate()
       print "===================================================="
-      print "IT Services criados com sucesso. Acesse http://<ip_servidor>/zabbix                                                                                                                     /srv_status.php"
+      print "IT Services criados com sucesso. Acesse http://<ip_servidor>/zabbix/srv_status.php"
       print ""
       print "===================================================="
     elif resposta=="8":
@@ -186,7 +186,7 @@ while resposta:
       print "===================================================="
       print "IT Services removidos com sucesso."
     elif resposta=="9":
-      print("\nObrigado por usar a API do Zabbix! Acesse: https://www.conectsys.                                                                                                                     com.br")
+      print("\nObrigado por usar a API do Zabbix! Acesse: https://www.conectsys.com.br")
       resposta=False
     elif resposta !="":
       print("\n Opcao invalida!")
