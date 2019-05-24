@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 #@author: Janssen dos reis lima
-#@email : janssenreislima@gmail.com / janssen@conectsys.com.br
-#@web   : https://www.conectsys.com.br
+#@email : janssenreislima@gmail.com
 
-# Update: 08/08/2017
+# Update: 24/05/2019
 
 from zabbix_api import ZabbixAPI
 import os
